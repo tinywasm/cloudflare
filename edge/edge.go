@@ -29,7 +29,7 @@ func (c *wasmContext) GetHeader(key string) string {
 	return c.req.Header(key)
 }
 func (c *wasmContext) SetHeader(key, value string) {
-	c.res.Header()[key] = value
+	c.res.SetHeader(key, value)
 }
 func (c *wasmContext) WriteStatus(code int) {
 	c.res.WriteHeader(code)
@@ -106,11 +106,11 @@ func (c *wasmContext) SetCookie(cookie router.Cookie) {
 		s += "; SameSite=None"
 	}
 
-	existing := c.res.Header()["Set-Cookie"]
+	existing := c.res.GetHeader("Set-Cookie")
 	if existing == "" {
-		c.res.Header()["Set-Cookie"] = s
+		c.res.SetHeader("Set-Cookie", s)
 	} else {
-		c.res.Header()["Set-Cookie"] = existing + ", " + s
+		c.res.SetHeader("Set-Cookie", existing+", "+s)
 	}
 }
 
