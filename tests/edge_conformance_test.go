@@ -50,8 +50,8 @@ func (c *conformanceCtx) Write(b []byte) (int, error) {
 	c.out = append(c.out, b...)
 	return len(b), nil
 }
-func (c *conformanceCtx) SetValue(string, any)    {}
-func (c *conformanceCtx) Value(string) any        { return nil }
+func (c *conformanceCtx) SetValue(string, string) {}
+func (c *conformanceCtx) Value(string) string     { return "" }
 func (c *conformanceCtx) SetCookie(router.Cookie) {}
 func (c *conformanceCtx) Cookie(string) (router.Cookie, bool) {
 	return router.Cookie{}, false
