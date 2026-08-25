@@ -1,5 +1,7 @@
 github.com/tinywasm/await v0.1.0 h1:keCHZSRPohCGLv+Tm/ovZUwi9oZZX3G3QgUomsNgsxM=
 github.com/tinywasm/await v0.1.0/go.mod h1:7Z60wpqsTfOhy8zVE4kd86ZrFZ97e9Vx4E69Xwgeca8=
+github.com/tinywasm/context v0.0.22 h1:5tS1WL18BToC8HUTk2bkn4utxngZoleryHCQNCgaQG8=
+github.com/tinywasm/context v0.0.22/go.mod h1:C3Movx3XwRmeCDZ2Z1kckNEGSoLCLMgLSEHlf0HCW2U=
 github.com/tinywasm/ddl v0.0.12 h1:vIX4BdWyxgX9rxzXONerFjf9es60S+pqbFFc0yiMJQ8=
 github.com/tinywasm/ddl v0.0.12/go.mod h1:xY1lGWWzKq8wFecGzkz2bjBud5fE1yDp9kBa1dzYqns=
 github.com/tinywasm/fmt v0.25.7 h1:Rju5B7LfrGu2QOA0L5IN0Cb9NwH5h8afGbawnF59Mec=

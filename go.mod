@@ -17,3 +17,5 @@ require (
 	github.com/tinywasm/model v0.1.4
 	github.com/tinywasm/router v0.1.27
 )
+
+require github.com/tinywasm/context v0.0.22

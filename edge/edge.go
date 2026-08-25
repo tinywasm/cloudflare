@@ -5,6 +5,7 @@ package edge
 import (
 	"syscall/js"
 
+	"github.com/tinywasm/context"
 	"github.com/tinywasm/fmt"
 	"github.com/tinywasm/cloudflare/log"
 	"github.com/tinywasm/cloudflare/workers"
@@ -17,7 +18,7 @@ type wasmContext struct {
 	req  *workers.Request
 	res  *workers.Response
 	path string
-	vals map[string]any
+	vals *context.Context
 	uid  string
 }
 
@@ -37,18 +38,27 @@ func (c *wasmContext) Write(b []byte) (int, error) {
 	return c.res.Write(b)
 }
 
+// SetValue stores a request-scoped value. tinywasm/context holds string
+// values only (no maps — fixed 16-pair array, TinyGo-friendly); v must be a
+// string. Both constraints are programmer errors, not runtime data errors,
+// so they panic rather than fail silently — the edge runtime already
+// recovers panics at the request boundary (see log.Panic) and reports them
+// as a 5xx, so this fails loudly the same way the rest of the stack does.
 func (c *wasmContext) SetValue(key string, v any) {
-	if c.vals == nil {
-		c.vals = make(map[string]any)
+	s, ok := v.(string)
+	if !ok {
+		panic(fmt.Sprintf("edge: SetValue(%q): tinywasm/context stores strings only, got %T", key, v))
 	}
-	c.vals[key] = v
+	if c.vals == nil {
+		c.vals = context.Background()
+	}
+	if err := c.vals.Set(key, s); err != nil {
+		panic(fmt.Sprintf("edge: SetValue(%q): %v", key, err))
+	}
 }
 
 func (c *wasmContext) Value(key string) any {
-	if c.vals == nil {
-		return nil
-	}
-	return c.vals[key]
+	return c.vals.Value(key)
 }
 
 func (c *wasmContext) SetUserID(id string) {
