@@ -68,11 +68,35 @@ See `tinywasm/goflare` for the CLI, and `docs/ARCHITECTURE.md` for the isolate l
 |---|---|
 | `github.com/tinywasm/cloudflare/edge` | Router adapter (`router.Router` on `workers.Handle`) |
 | `github.com/tinywasm/cloudflare/workers` | JS↔Go bridge (`Request`/`Response`, `Handle`/`Ready`) |
-| `github.com/tinywasm/cloudflare/d1` | D1 adapter for `tinywasm/orm` (`d1.NewEdge`) |
+| `github.com/tinywasm/cloudflare/d1` | D1 adapter for `tinywasm/orm` (`d1.NewEdge` for WASM; `d1.NewMigrator` for host/CI DDL migrations over HTTP) |
 | `github.com/tinywasm/cloudflare/r2` | R2 bucket (`r2.NewEdge`) |
 | `github.com/tinywasm/cloudflare/log` | Edge logging (`log.Reject`/`Fail`/`Panic`) |
 | `github.com/tinywasm/cloudflare/assets` | JS half of runtime (`WasmExecJS`, `RuntimeMJS`, `WorkerMJS`) for bundlers — `!wasm` |
 | `github.com/tinywasm/env` | Env access (`env.Get`/`Lookup` — `os`+`.env` vs `context.env` auto-tag) |
+
+## Migrations from Outside a Worker (`d1.NewMigrator`)
+
+For running DDL migrations from CI or outside a Worker (where `NewEdge` binding does not exist):
+
+```go
+//go:build !wasm
+
+package main
+
+import (
+	"github.com/tinywasm/cloudflare/d1"
+	"github.com/tinywasm/ddl"
+	"github.com/tinywasm/sqlt"
+)
+
+func main() {
+	conn, err := d1.NewMigrator(accountID, databaseID, apiToken)
+	if err != nil {
+		// handle error
+	}
+	err = ddl.New(conn, sqlt.NewCompiler()).Sync(models...)
+}
+```
 
 ## Constraints
 
