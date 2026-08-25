@@ -25,10 +25,19 @@ split, and that a change here must not reintroduce:
    Mixing them meant every CLI feature churned the file a Worker's
    correctness depends on.
 
-**Consequence for this repo: it must never import anything `!wasm`-only
-except where a file itself is `!wasm`-tagged** (e.g. a host-side D1 client
-for CI tooling). No `os/exec`, no `net/http` client code, no CLI parsing —
-that all stays in `goflare`.
+**Consequence for this repo: no tooling code, ever, regardless of build
+tag.** This repo is a library that `goflare` depends on — never the other
+way around, and never side by side. If a change needs `os/exec`, an HTTP
+client, CLI flag parsing, deploy/migration orchestration, or anything else
+that only ever runs on a developer's machine or in CI rather than inside a
+Worker, **it belongs in `goflare`, in a new file there** — not here behind a
+`//go:build !wasm` tag. A `!wasm` tag changes *which target compiles a file*;
+it says nothing about whether the file's *purpose* is runtime or tooling,
+and it is not a license to put tooling here. (A prior version of this repo's
+own `docs/PLAN.md` got exactly this wrong — proposed a host-side D1 HTTP
+client, for CI migration tooling, living in this repo's `d1/` package. It
+was caught before merging and the work was redirected to `goflare` instead.
+Don't repeat it.)
 
 ## No stdlib in `//go:build wasm` files
 
