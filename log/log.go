@@ -49,7 +49,19 @@ func Panic(method, path string, v any) {
 	console("error", "500", method, path, "panic: "+fmt.Convert(v).String())
 }
 
+// console builds the log line through tinywasm/fmt's pooled Conv buffer —
+// the same primitive Println uses internally — instead of chaining +, which
+// allocates a new string at every concatenation.
 func console(level string, status, method, path, detail string) {
-	js.Global().Get("console").Call(level,
-		prefix+" "+status+" "+method+" "+path+" — "+detail)
+	c := fmt.GetConv()
+	c.WrString(fmt.BuffOut, prefix)
+	c.WrString(fmt.BuffOut, " ")
+	c.WrString(fmt.BuffOut, status)
+	c.WrString(fmt.BuffOut, " ")
+	c.WrString(fmt.BuffOut, method)
+	c.WrString(fmt.BuffOut, " ")
+	c.WrString(fmt.BuffOut, path)
+	c.WrString(fmt.BuffOut, " — ")
+	c.WrString(fmt.BuffOut, detail)
+	js.Global().Get("console").Call(level, c.String())
 }
