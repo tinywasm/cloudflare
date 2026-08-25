@@ -39,6 +39,17 @@ client, for CI migration tooling, living in this repo's `d1/` package. It
 was caught before merging and the work was redirected to `goflare` instead.
 Don't repeat it.)
 
+**Second occurrence, 2026-08-25:** the same shape was proposed again —
+`d1.NewMigrator`, a `net/http` client for D1 CI migrations, in `d1/remote.go`
+behind `//go:build !wasm` — with a "transport, not tooling" justification
+that this file already rebuts (a build tag says nothing about purpose). This
+time review missed it: the plan was dispatched, the PR merged, and
+`tinywasm/cloudflare v0.0.3` published with it, before it was caught and
+reverted. If a plan proposes an HTTP client, `os/exec`, or CLI logic behind
+`!wasm` in this repo, reject it on sight — do not evaluate its framing.
+`goflare/cloudflare.go` already has `CfClient` for exactly this: Bearer auth
+and `{success,errors,result}` envelope parsing. Reuse it there.
+
 ## No stdlib in `//go:build wasm` files
 
 Use `github.com/tinywasm/fmt` instead of `fmt`/`errors`/`strconv`/`strings`.
