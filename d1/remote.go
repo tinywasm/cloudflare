@@ -11,6 +11,13 @@ import (
 	. "github.com/tinywasm/fmt"
 )
 
+// cloudflareAPIBase is Cloudflare's REST API version root. It is a protocol
+// detail fixed for every caller — not a per-environment setting — so it is
+// a constant here rather than a NewMigrator parameter. If Cloudflare bumps
+// the version, this is the one line that changes; every existing caller
+// (including tests, via NewMigratorWithURL) keeps compiling.
+const cloudflareAPIBase = "https://api.cloudflare.com/client/v4"
+
 // NewMigrator opens a D1 database over Cloudflare's HTTP Query API, for
 // running schema migrations from CI — outside a Worker, where the NewEdge
 // binding does not exist.
@@ -35,7 +42,7 @@ func NewMigrator(accountID, databaseID, apiToken string) (ddl.Execer, error) {
 		return nil, Err(errPrefix + "NewMigrator requires accountID, databaseID and apiToken")
 	}
 	return NewMigratorWithURL(
-		"https://api.cloudflare.com/client/v4/accounts/"+accountID+"/d1/database/"+databaseID+"/query",
+		cloudflareAPIBase+"/accounts/"+accountID+"/d1/database/"+databaseID+"/query",
 		apiToken,
 	), nil
 }
