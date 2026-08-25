@@ -26,17 +26,17 @@ const prefix = "goflare"
 // wrong type, no permission), so this is not an incident — but without the reason, a 403 or
 // a 415 is indistinguishable from a bug in the app.
 func Reject(status int, method, path, reason string) {
-	console("warn", fmt.Convert(status).String(), method, path, reason)
+	console("warn", status, method, path, reason)
 }
 
 // Fail records a failure that is ours: a 5xx. err is the cause, and it is the whole point
 // of the call — a 502 with no cause cannot be acted on.
 func Fail(status int, method, path string, err error) {
-	msg := "unknown cause"
-	if err != nil {
-		msg = err.Error()
+	if err == nil {
+		console("error", status, method, path, "unknown cause")
+		return
 	}
-	console("error", fmt.Convert(status).String(), method, path, msg)
+	console("error", status, method, path, err)
 }
 
 // Panic records a panic that was caught at the request boundary.
@@ -46,22 +46,30 @@ func Fail(status int, method, path string, err error) {
 // real cause nowhere to be seen. Recovering and logging turns that dead end into a 500 that
 // names what happened.
 func Panic(method, path string, v any) {
-	console("error", "500", method, path, "panic: "+fmt.Convert(v).String())
+	console("error", 500, method, path, "panic: ", v)
 }
 
-// console builds the log line through tinywasm/fmt's pooled Conv buffer —
-// the same primitive Println uses internally — instead of chaining +, which
-// allocates a new string at every concatenation.
-func console(level string, status, method, path, detail string) {
+// console builds the log line in one tinywasm/fmt Conv buffer — the same
+// pooled primitive Println uses internally. status and each detail part are
+// written straight into that buffer via AnyToBuff, never pre-converted to a
+// standalone string first (no fmt.Sprint/Convert(...).String(), no +): every
+// intermediate conversion before this point would be one avoidable
+// allocation, immediately copied again into the final line. AnyToBuff also
+// handles error values correctly (calls Error() directly), unlike
+// Convert(v).String() which returns "" for them — see Panic, whose detail
+// can be any value recover() produces, including an error.
+func console(level string, status int, method, path string, detail ...any) {
 	c := fmt.GetConv()
 	c.WrString(fmt.BuffOut, prefix)
 	c.WrString(fmt.BuffOut, " ")
-	c.WrString(fmt.BuffOut, status)
+	c.AnyToBuff(fmt.BuffOut, status)
 	c.WrString(fmt.BuffOut, " ")
 	c.WrString(fmt.BuffOut, method)
 	c.WrString(fmt.BuffOut, " ")
 	c.WrString(fmt.BuffOut, path)
 	c.WrString(fmt.BuffOut, " — ")
-	c.WrString(fmt.BuffOut, detail)
+	for _, part := range detail {
+		c.AnyToBuff(fmt.BuffOut, part)
+	}
 	js.Global().Get("console").Call(level, c.String())
 }
