@@ -2,6 +2,8 @@
 PLAN: "feat: d1.NewMigrator — execute DDL against D1 from outside a Worker"
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 13879164902895928035
 ---
 
 > This plan is dispatched via the CodeJob workflow. See skill: agents-workflow.
