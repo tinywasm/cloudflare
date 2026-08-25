@@ -74,13 +74,18 @@ regression:
 
 ## Testing
 
-`workers`/`edge`/`d1`/`r2` are `//go:build wasm` — test them with
-`wasmbrowsertest` (a real browser JS environment, not the Go toolchain's
-`GOOS=js` backend, which accepts imports TinyGo would reject):
+`workers`/`edge`/`d1`/`r2` are `//go:build wasm` — they run in a real browser
+(via `wasmbrowsertest` under the hood, not the Go toolchain's `GOOS=js` backend
+which accepts imports TinyGo would reject). Use `gotest` (ecosystem runner,
+see `tinywasm/devflow/docs/GOTEST.md`):
 
 ```bash
-GOOS=js GOARCH=wasm go test -exec wasmbrowsertest ./...
+go install github.com/tinywasm/devflow/cmd/gotest@latest
+gotest              # vet + race + cover + wasm + badges
+gotest -run TestFoo # filtro por nombre
 ```
+
+`gotest` auto-detecta WASM por build tag `//go:build wasm`, no por nombre de archivo.
 
 No headless-browser or Node harness exists in this ecosystem for driving
 *two overlapping* `worker.mjs` invocations (concurrency bugs like #1 above
