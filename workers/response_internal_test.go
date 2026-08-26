@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-// TestResponse_WriteAccumulatesBody comprueba que buf ([]byte con append)
-// concatena exactamente igual que lo hacía bytes.Buffer: Write y WriteString
-// alternados, incluyendo UTF-8 multibyte y un Write de slice vacío.
+// TestResponse_WriteAccumulatesBody checks that buf ([]byte with append)
+// concatenates exactly like bytes.Buffer did: Write and WriteString
+// interleaved, including multibyte UTF-8 and a Write of an empty slice.
 func TestResponse_WriteAccumulatesBody(t *testing.T) {
 	w := newResponse()
 

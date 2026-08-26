@@ -44,8 +44,8 @@ func DDLCompiler(conn storage.Conn) (ddl.Compiler, bool) {
 	return c, ok
 }
 
-// stmt prepara query contra la sesion vigente. Cuando no hay store, prepara
-// directo contra el binding y el comportamiento es el de siempre.
+// stmt prepares query against the current session. With no store it prepares
+// straight against the binding, and the behaviour is what it always was.
 func (a *adapter) stmt(query string) (stmt js.Value, sess js.Value) {
 	if a.store == nil {
 		return a.dbObj.Call("prepare", query), js.Undefined()
@@ -61,9 +61,8 @@ func (a *adapter) stmt(query string) (stmt js.Value, sess js.Value) {
 	return stmt, sess
 }
 
-// captureBookmark guarda el bookmark de la sesion que acaba de ejecutar, para
-// que la siguiente sentencia de esta peticion lea una version al menos igual
-// de fresca.
+// captureBookmark stores the bookmark of the session that just executed, so
+// the next statement in this request reads a version at least as fresh.
 func (a *adapter) captureBookmark(sess js.Value) {
 	if a.store == nil || sess.IsUndefined() || sess.IsNull() {
 		return

@@ -18,4 +18,10 @@ require (
 	github.com/tinywasm/router v0.1.28
 )
 
-require github.com/tinywasm/context v0.0.22
+require (
+	github.com/tinywasm/context v0.0.22
+	github.com/tinywasm/filetype v0.0.5
+	github.com/tinywasm/unixid v0.2.26
+)
+
+require github.com/tinywasm/time v0.5.0 // indirect

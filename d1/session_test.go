@@ -38,10 +38,10 @@ func setupMockDB(withSessionFunc js.Value, prepareFunc js.Value) js.Value {
 	return obj
 }
 
-// fakePromise devuelve una promesa real de JS ya resuelta con val. Usar
-// Promise.resolve en vez de un objeto con un then() a mano es deliberado:
-// await.Promise encadena .then(...).catch(...), asi que un doble sin catch
-// hace panicar a syscall/js antes de llegar a la asercion.
+// fakePromise returns a real JS promise already resolved with val. Using
+// Promise.resolve instead of a hand-rolled object with a then() is deliberate:
+// await.Promise chains .then(...).catch(...), so a double without catch makes
+// syscall/js panic before any assertion is reached.
 func fakePromise(val js.Value) js.Value {
 	return js.Global().Get("Promise").Call("resolve", val)
 }

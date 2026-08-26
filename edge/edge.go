@@ -29,10 +29,10 @@ func (s *edgeBookmarkStore) SetBookmark(bm string) {
 	s.ctx.SetValue(bookmarkKey, bm)
 }
 
-// BookmarkStore devuelve un d1.BookmarkStore respaldado por el almacen de
-// cadenas por peticion de ctx. Es el enlace entre el router y el adaptador de
-// D1: cada peticion lleva el suyo, asi que dos peticiones concurrentes en el
-// mismo isolate nunca comparten version de la base.
+// BookmarkStore returns a d1.BookmarkStore backed by ctx's per-request string
+// storage. It is the link between the router and the D1 adapter: every request
+// carries its own, so two concurrent requests in the same isolate never share a
+// database version.
 func BookmarkStore(ctx router.Context) d1.BookmarkStore {
 	return &edgeBookmarkStore{ctx: ctx}
 }

@@ -4,6 +4,8 @@ github.com/tinywasm/context v0.0.22 h1:5tS1WL18BToC8HUTk2bkn4utxngZoleryHCQNCgaQ
 github.com/tinywasm/context v0.0.22/go.mod h1:C3Movx3XwRmeCDZ2Z1kckNEGSoLCLMgLSEHlf0HCW2U=
 github.com/tinywasm/ddl v0.0.12 h1:vIX4BdWyxgX9rxzXONerFjf9es60S+pqbFFc0yiMJQ8=
 github.com/tinywasm/ddl v0.0.12/go.mod h1:xY1lGWWzKq8wFecGzkz2bjBud5fE1yDp9kBa1dzYqns=
+github.com/tinywasm/filetype v0.0.5 h1:szDbBL7X8x0vM17y+WN7RCEzUR7CcpMujYN1eIpOYFg=
+github.com/tinywasm/filetype v0.0.5/go.mod h1:03oXIdrnVjlQdxnwR3l141XeioYxTMAHEhHVCUGqM7M=
 github.com/tinywasm/fmt v0.25.7 h1:Rju5B7LfrGu2QOA0L5IN0Cb9NwH5h8afGbawnF59Mec=
 github.com/tinywasm/fmt v0.25.7/go.mod h1:2Y4hlsQxqVsZ5z9vQL5XQbEzLQtQOr1Bhp44nPGfydA=
 github.com/tinywasm/json v0.5.23 h1:mhD385PI5oMxhOvXU+0lApfMmiq7e739WUtvs20hneI=
@@ -20,3 +22,7 @@ github.com/tinywasm/sqlt v0.0.8 h1:yu+9e/4djfTqkC53x5iyzJBBGcoFKvafYDtWv3J08s0=
 github.com/tinywasm/sqlt v0.0.8/go.mod h1:03pCtZV/rlsb0BiF3OfbX/pNGM7DRiWincYyD+c6uDA=
 github.com/tinywasm/storage v0.0.2 h1:2z2w6Vpy5057mtvXWzK79F4XslJBvQl6GqAm+WacfyU=
 github.com/tinywasm/storage v0.0.2/go.mod h1:mF48cBANp2vWkgj2EbpurNY5QY4fYqpCTwbNaaLM5Ic=
+github.com/tinywasm/time v0.5.0 h1:M17DNgKrMYfkCK42V6miL9AcwfN/FHghbKOSTXJrkMo=
+github.com/tinywasm/time v0.5.0/go.mod h1:vxGAkKA40im4ObiTS6hcsJYiIsVVLSz/A63JC/+TwvA=
+github.com/tinywasm/unixid v0.2.26 h1:eU5VLSegyf9Np6dtbQssI5MVkU914cZyfTI4KnmAyOw=
+github.com/tinywasm/unixid v0.2.26/go.mod h1:wh1FAR4GDFpPoVcMiUQH2VYsIdxByEN44Rge3vTCo7k=

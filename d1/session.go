@@ -10,30 +10,30 @@ import (
 )
 
 const (
-	// BookmarkFirstUnconstrained abre la sesion contra cualquier instancia,
-	// replica incluida. Es lo mas rapido y lo correcto para lecturas que
-	// toleran el retraso de replicacion.
+	// BookmarkFirstUnconstrained opens the session against any instance,
+	// replicas included. It is the fastest option and the right one for reads
+	// that tolerate replication lag.
 	BookmarkFirstUnconstrained = "first-unconstrained"
 
-	// BookmarkFirstPrimary fuerza la primera consulta contra la primaria. Es
-	// lo correcto cuando la peticion va a escribir, o cuando debe ver una
-	// escritura hecha en otra peticion sin bookmark que las enlace.
+	// BookmarkFirstPrimary forces the first query onto the primary. It is the
+	// right one when the request is going to write, or when it must see a write
+	// made by another request with no bookmark linking the two.
 	BookmarkFirstPrimary = "first-primary"
 )
 
-// BookmarkStore lleva el bookmark de D1 de una sentencia a la siguiente dentro
-// de una misma peticion. La implementacion la inyecta el consumidor y DEBE ser
-// por peticion: varias peticiones pueden estar en vuelo a la vez en un mismo
-// isolate mientras esperan promesas, asi que un almacen compartido entre ellas
-// mezclaria versiones de la base entre usuarios distintos.
+// BookmarkStore carries D1's bookmark from one statement to the next within a
+// single request. The consumer injects the implementation, and it MUST be
+// per-request: several requests can be in flight at once inside one isolate
+// while they await promises, so a store shared between them would mix database
+// versions across different users.
 type BookmarkStore interface {
 	Bookmark() string
 	SetBookmark(string)
 }
 
-// NewEdgeSession abre el binding igual que NewEdge, pero enruta cada sentencia
-// por la Sessions API de D1 usando store para encadenar bookmarks. Sin esto,
-// las replicas de lectura no se usan aunque esten activadas.
+// NewEdgeSession opens the binding just like NewEdge, but routes every
+// statement through D1's Sessions API, using store to chain bookmarks. Without
+// this, read replicas go unused even when they are enabled.
 func NewEdgeSession(bindingName string, store BookmarkStore) (*orm.DB, error) {
 	v := js.Global().Get("context").Get("env").Get(bindingName)
 	if v.IsUndefined() || v.IsNull() {
