@@ -38,6 +38,14 @@ func setupMockDB(withSessionFunc js.Value, prepareFunc js.Value) js.Value {
 	return obj
 }
 
+// fakePromise devuelve una promesa real de JS ya resuelta con val. Usar
+// Promise.resolve en vez de un objeto con un then() a mano es deliberado:
+// await.Promise encadena .then(...).catch(...), asi que un doble sin catch
+// hace panicar a syscall/js antes de llegar a la asercion.
+func fakePromise(val js.Value) js.Value {
+	return js.Global().Get("Promise").Call("resolve", val)
+}
+
 func TestNewEdgeDoesNotUseSessions(t *testing.T) {
 	withSessionCalled := false
 	prepareCalled := false
@@ -57,13 +65,7 @@ func TestNewEdgeDoesNotUseSessions(t *testing.T) {
 		}))
 
 		stmt.Set("run", js.FuncOf(func(this js.Value, args []js.Value) any {
-			p := js.Global().Get("Object").New()
-			p.Set("then", js.FuncOf(func(this js.Value, args []js.Value) any {
-				resolve := args[0]
-				resolve.Invoke(js.Undefined())
-				return p
-			}))
-			return p
+			return fakePromise(js.Undefined())
 		}))
 		return stmt
 	})
@@ -99,20 +101,14 @@ func TestSessionChainsBookmarks(t *testing.T) {
 			return stmt
 		}))
 		stmt.Set("raw", js.FuncOf(func(this js.Value, args []js.Value) any {
-			p := js.Global().Get("Object").New()
-			p.Set("then", js.FuncOf(func(this js.Value, args []js.Value) any {
-				resolve := args[0]
-				arr := js.Global().Get("Array").New()
-				cols := js.Global().Get("Array").New()
-				cols.Call("push", "id")
-				row := js.Global().Get("Array").New()
-				row.Call("push", 1)
-				arr.Call("push", cols)
-				arr.Call("push", row)
-				resolve.Invoke(arr)
-				return p
-			}))
-			return p
+			arr := js.Global().Get("Array").New()
+			cols := js.Global().Get("Array").New()
+			cols.Call("push", "id")
+			row := js.Global().Get("Array").New()
+			row.Call("push", 1)
+			arr.Call("push", cols)
+			arr.Call("push", row)
+			return fakePromise(arr)
 		}))
 		return stmt
 	})
@@ -185,13 +181,7 @@ func TestNullBookmarkIsIgnored(t *testing.T) {
 			return stmt
 		}))
 		stmt.Set("run", js.FuncOf(func(this js.Value, args []js.Value) any {
-			p := js.Global().Get("Object").New()
-			p.Set("then", js.FuncOf(func(this js.Value, args []js.Value) any {
-				resolve := args[0]
-				resolve.Invoke(js.Undefined())
-				return p
-			}))
-			return p
+			return fakePromise(js.Undefined())
 		}))
 		return stmt
 	})
