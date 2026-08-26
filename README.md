@@ -68,7 +68,7 @@ See `tinywasm/goflare` for the CLI, and `docs/ARCHITECTURE.md` for the isolate l
 |---|---|
 | `github.com/tinywasm/cloudflare/edge` | Router adapter (`router.Router` on `workers.Handle`) |
 | `github.com/tinywasm/cloudflare/workers` | JS↔Go bridge (`Request`/`Response`, `Handle`/`Ready`) |
-| `github.com/tinywasm/cloudflare/d1` | D1 adapter for `tinywasm/orm` (`d1.NewEdge` for WASM) — see [docs/D1.md](docs/D1.md) |
+| `github.com/tinywasm/cloudflare/d1` | D1 adapter for `tinywasm/orm` (`d1.NewEdge`, or `d1.NewEdgeSession` for read replicas via the Sessions API) — see [docs/D1.md](docs/D1.md) |
 | `github.com/tinywasm/cloudflare/r2` | R2 bucket (`r2.NewEdge`) |
 | `github.com/tinywasm/cloudflare/log` | Edge logging (`log.Reject`/`Fail`/`Panic`) |
 | `github.com/tinywasm/cloudflare/assets` | JS half of runtime (`WasmExecJS`, `RuntimeMJS`, `WorkerMJS`) for bundlers — `!wasm` |
