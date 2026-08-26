@@ -76,6 +76,10 @@ regression:
    route it through `context.binding`, the same door `Handle()` already uses
    for `handleRequest`. A shared-global handshake is exactly the bug that got
    fixed here; it is not a hypothetical.
+   **Never store per-request state in package-level variables.** Multiple
+   requests are handled concurrently in the same isolate. Global or package-level
+   state mutates across concurrent requests (e.g. sharing D1 session instances),
+   leading to race conditions and version mixing across distinct client sessions.
 2. **`main()` must always signal readiness or fail loudly — never just
    return.** `assets/worker.mjs`'s `start()` observes the promise `go.run`
    returns (which settles when Go's `main()` exits) specifically so a

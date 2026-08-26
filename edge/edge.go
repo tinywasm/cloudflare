@@ -5,14 +5,37 @@ package edge
 import (
 	"syscall/js"
 
-	"github.com/tinywasm/context"
-	"github.com/tinywasm/fmt"
+	"github.com/tinywasm/cloudflare/d1"
 	"github.com/tinywasm/cloudflare/log"
 	"github.com/tinywasm/cloudflare/workers"
+	"github.com/tinywasm/context"
+	"github.com/tinywasm/fmt"
 	"github.com/tinywasm/json"
 	"github.com/tinywasm/model"
 	"github.com/tinywasm/router"
 )
+
+const bookmarkKey = "d1_bookmark"
+
+type edgeBookmarkStore struct {
+	ctx router.Context
+}
+
+func (s *edgeBookmarkStore) Bookmark() string {
+	return s.ctx.Value(bookmarkKey)
+}
+
+func (s *edgeBookmarkStore) SetBookmark(bm string) {
+	s.ctx.SetValue(bookmarkKey, bm)
+}
+
+// BookmarkStore devuelve un d1.BookmarkStore respaldado por el almacen de
+// cadenas por peticion de ctx. Es el enlace entre el router y el adaptador de
+// D1: cada peticion lleva el suyo, asi que dos peticiones concurrentes en el
+// mismo isolate nunca comparten version de la base.
+func BookmarkStore(ctx router.Context) d1.BookmarkStore {
+	return &edgeBookmarkStore{ctx: ctx}
+}
 
 type wasmContext struct {
 	req  *workers.Request

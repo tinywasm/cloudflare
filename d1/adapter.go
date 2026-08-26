@@ -16,6 +16,7 @@ import (
 
 type adapter struct {
 	dbObj js.Value
+	store BookmarkStore
 	storage.Compiler
 }
 
@@ -43,17 +44,50 @@ func DDLCompiler(conn storage.Conn) (ddl.Compiler, bool) {
 	return c, ok
 }
 
+// stmt prepara query contra la sesion vigente. Cuando no hay store, prepara
+// directo contra el binding y el comportamiento es el de siempre.
+func (a *adapter) stmt(query string) (stmt js.Value, sess js.Value) {
+	if a.store == nil {
+		return a.dbObj.Call("prepare", query), js.Undefined()
+	}
+
+	bm := a.store.Bookmark()
+	if bm == "" {
+		bm = BookmarkFirstUnconstrained
+	}
+
+	sess = a.dbObj.Call("withSession", bm)
+	stmt = sess.Call("prepare", query)
+	return stmt, sess
+}
+
+// captureBookmark guarda el bookmark de la sesion que acaba de ejecutar, para
+// que la siguiente sentencia de esta peticion lea una version al menos igual
+// de fresca.
+func (a *adapter) captureBookmark(sess js.Value) {
+	if a.store == nil || sess.IsUndefined() || sess.IsNull() {
+		return
+	}
+	bm := sess.Call("getBookmark")
+	if bm.IsUndefined() || bm.IsNull() {
+		return
+	}
+	a.store.SetBookmark(bm.String())
+}
+
 func (a *adapter) Exec(query string, args ...any) error {
-	stmt := a.dbObj.Call("prepare", query)
+	stmt, sess := a.stmt(query)
 	_, err := await.Promise(bindArgs(stmt, args).Call("run"))
+	a.captureBookmark(sess)
 	return err
 }
 
 func (a *adapter) QueryRow(query string, args ...any) storage.Scanner {
-	stmt := a.dbObj.Call("prepare", query)
+	stmt, sess := a.stmt(query)
 	opts := js.Global().Get("Object").New()
 	opts.Set("columnNames", true)
 	arr, err := await.Promise(bindArgs(stmt, args).Call("raw", opts))
+	a.captureBookmark(sess)
 	if err != nil {
 		return &errScanner{err}
 	}
@@ -64,10 +98,11 @@ func (a *adapter) QueryRow(query string, args ...any) storage.Scanner {
 }
 
 func (a *adapter) Query(query string, args ...any) (storage.Rows, error) {
-	stmt := a.dbObj.Call("prepare", query)
+	stmt, sess := a.stmt(query)
 	opts := js.Global().Get("Object").New()
 	opts.Set("columnNames", true)
 	arr, err := await.Promise(bindArgs(stmt, args).Call("raw", opts))
+	a.captureBookmark(sess)
 	if err != nil {
 		return nil, err
 	}
