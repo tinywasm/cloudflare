@@ -29,8 +29,10 @@ type conformanceCtx struct {
 	headers map[string]string
 	uid     string
 
-	status int
-	out    []byte
+	status      int
+	out         []byte
+	paramNames  []string
+	paramValues []string
 }
 
 func (c *conformanceCtx) Method() string { return c.method }
@@ -52,7 +54,18 @@ func (c *conformanceCtx) Write(b []byte) (int, error) {
 }
 func (c *conformanceCtx) SetValue(string, string) {}
 func (c *conformanceCtx) Value(string) string     { return "" }
-func (c *conformanceCtx) Param(string) string     { return "" }
+func (c *conformanceCtx) SetParams(names, values []string) {
+	c.paramNames = names
+	c.paramValues = values
+}
+func (c *conformanceCtx) Param(name string) string {
+	for i, n := range c.paramNames {
+		if n == name && i < len(c.paramValues) {
+			return c.paramValues[i]
+		}
+	}
+	return ""
+}
 func (c *conformanceCtx) SetCookie(router.Cookie) {}
 func (c *conformanceCtx) Cookie(string) (router.Cookie, bool) {
 	return router.Cookie{}, false
