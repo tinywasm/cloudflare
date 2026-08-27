@@ -2,8 +2,9 @@
 PLAN: "feat: path parameters in the edge router"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 13540689755628478172
+PR: https://github.com/tinywasm/cloudflare/pull/3
 ---
 
 > This plan is dispatched via the CodeJob workflow. See skill: agents-workflow.
