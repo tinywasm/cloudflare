@@ -52,6 +52,7 @@ func (c *conformanceCtx) Write(b []byte) (int, error) {
 }
 func (c *conformanceCtx) SetValue(string, string) {}
 func (c *conformanceCtx) Value(string) string     { return "" }
+func (c *conformanceCtx) Param(string) string     { return "" }
 func (c *conformanceCtx) SetCookie(router.Cookie) {}
 func (c *conformanceCtx) Cookie(string) (router.Cookie, bool) {
 	return router.Cookie{}, false

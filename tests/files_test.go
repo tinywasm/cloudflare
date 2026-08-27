@@ -43,6 +43,7 @@ func (c *fakeCtx) SetHeader(k, v string)     { c.headers[k] = v }
 func (c *fakeCtx) WriteStatus(code int)      { c.status = code }
 func (c *fakeCtx) SetValue(k, v string)      {}
 func (c *fakeCtx) Value(k string) string     { return "" }
+func (c *fakeCtx) Param(k string) string     { return "" }
 func (c *fakeCtx) SetCookie(router.Cookie)   {}
 
 // SetUserID and UserID record the identity for real. They used to be an empty setter and a
