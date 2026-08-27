@@ -15,7 +15,7 @@ Build tags kept them from cross-importing by accident, but one module meant one 
 
 | Package | Build tag | Role |
 |---|---|---|
-| `edge/` | `//go:build wasm` | Router adapter on top of `workers/` (`router.Router` → `workers.Handle`). Compiles middleware once (`compile()`), gates via `Validate()`/`allows()`, dispatches via `Dispatch()`/`Serve()`. |
+| `edge/` | `//go:build wasm` | Router adapter on top of `workers/` (`router.Router` → `workers.Handle`). Compiles middleware once (`compile()`), gates via `Validate()`/`allows()`, dispatches via `Dispatch()`/`Serve()`. Route matching, pattern validation, and route ordering rules are owned by `tinywasm/router` and applied here so `httpd` and the edge router stay aligned via its conformance suite. |
 | `workers/` | `//go:build wasm` | JS↔Go bridge (`Request`/`Response` ↔ JS `Request`/`Response` via `syscall/js`). Owns the isolate handshake (`Handle()`/`Ready()` via `context.binding`). |
 | `d1/` | `//go:build wasm` | D1 adapter (`storage.Compiler` + `storage.Conn` over `context.env` binding) for `tinywasm/orm`. |
 | `r2/` | `//go:build wasm` | R2 bucket adapter over `context.env` binding (`Put`/`Get`/`Delete`/`List`). |

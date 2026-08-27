@@ -37,12 +37,38 @@ func BookmarkStore(ctx router.Context) d1.BookmarkStore {
 	return &edgeBookmarkStore{ctx: ctx}
 }
 
+type paramSetter interface {
+	SetParams(names, values []string)
+}
+
 type wasmContext struct {
-	req  *workers.Request
-	res  *workers.Response
-	path string
-	vals *context.Context
-	uid  string
+	req         *workers.Request
+	res         *workers.Response
+	path        string
+	vals        *context.Context
+	uid         string
+	paramNames  []string
+	paramValues []string
+}
+
+func (c *wasmContext) SetParams(names, values []string) {
+	c.paramNames = names
+	c.paramValues = values
+}
+
+// Param returns a path parameter the matched route declared with {name}.
+//
+// Backed by two parallel slices rather than a map: TinyGo compiles maps badly
+// and inflates the binary, and a route never declares more than a handful of
+// parameters, so a linear scan is cheaper than the hash anyway. Same reasoning
+// as tinywasm/context, which backs SetValue/Value.
+func (c *wasmContext) Param(name string) string {
+	for i := 0; i < len(c.paramNames); i++ {
+		if c.paramNames[i] == name {
+			return c.paramValues[i]
+		}
+	}
+	return ""
 }
 
 func (c *wasmContext) Method() string { return c.req.Method }
@@ -244,6 +270,9 @@ func (r *wasmRouter) Options(path string, h router.HandlerFunc) router.Route {
 	return r.Handle("OPTIONS", path, h)
 }
 func (r *wasmRouter) Handle(method, path string, h router.HandlerFunc) router.Route {
+	if err := router.ValidatePattern(path); err != nil {
+		panic(err.Error())
+	}
 	rt := &wasmRoute{
 		info: router.RouteInfo{Method: method, Path: path},
 		h:    h,
@@ -254,6 +283,9 @@ func (r *wasmRouter) Handle(method, path string, h router.HandlerFunc) router.Ro
 
 // PublicAsset registra UNA ruta que sirve UN archivo al navegador.
 func (r *wasmRouter) PublicAsset(path string, h router.HandlerFunc) {
+	if err := router.ValidatePattern(path); err != nil {
+		panic(err.Error())
+	}
 	route := &wasmRoute{
 		info: router.RouteInfo{Method: "GET", Path: path, Access: model.AccessPublic},
 		h:    h,
@@ -263,6 +295,9 @@ func (r *wasmRouter) PublicAsset(path string, h router.HandlerFunc) {
 
 // PublicDir sirve un directorio bajo un prefijo. Mismo contrato.
 func (r *wasmRouter) PublicDir(prefix string, dir string) {
+	if err := router.ValidatePattern(prefix); err != nil {
+		panic(err.Error())
+	}
 	route := &wasmRoute{
 		info: router.RouteInfo{Method: "GET", Path: prefix, Access: model.AccessPublic, Dir: dir},
 	}
@@ -289,56 +324,37 @@ func (r *wasmRouter) Socket(path string, h router.SocketFunc) router.Route {
 	panic("Socket not supported in this runtime")
 }
 
-// pathMatches reports whether pathname is served by pattern. A pattern ending in "/" matches
-// by prefix (that is how files.Store hangs a generated key off /api/files/); anything else is
-// an exact match.
-func pathMatches(pattern, pathname string) bool {
-	if pattern == "" {
-		return false
-	}
-	if pattern[len(pattern)-1] != '/' {
-		return pathname == pattern
-	}
-	if len(pathname) < len(pattern) {
-		return false
-	}
-	for i := 0; i < len(pattern); i++ {
-		if pathname[i] != pattern[i] {
-			return false
-		}
-	}
-	return true
-}
-
-// match finds the route for a method+path. The longest matching path wins, so a specific
-// route beats a prefix one. A route registered with an empty method matches any method.
+// match finds the route for a method+path. Route precedence is determined by
+// router.MoreSpecific. A route registered with an empty method matches any method.
 //
-// The second result is the status to answer when nothing matched: 405 when the path exists
+// The third result is the status to answer when nothing matched: 405 when the path exists
 // but not for this method, 404 when it does not exist at all.
-func (r *wasmRouter) match(method, pathname string) (*wasmRoute, int) {
+func (r *wasmRouter) match(method, pathname string) (*wasmRoute, []string, int) {
 	var best *wasmRoute
+	var bestValues []string
 	pathExists := false
 
 	for _, rt := range r.routes {
-		if !pathMatches(rt.info.Path, pathname) {
+		values, ok := router.MatchPattern(rt.info.Path, pathname)
+		if !ok {
 			continue
 		}
 		pathExists = true
 		if rt.info.Method != "" && rt.info.Method != method {
 			continue
 		}
-		if best == nil || len(rt.info.Path) > len(best.info.Path) {
-			best = rt
+		if best == nil || router.MoreSpecific(rt.info.Path, best.info.Path) {
+			best, bestValues = rt, values
 		}
 	}
 
 	if best != nil {
-		return best, 200
+		return best, bestValues, 200
 	}
 	if pathExists {
-		return nil, 405
+		return nil, nil, 405
 	}
-	return nil, 404
+	return nil, nil, 404
 }
 
 // allows is the access gate. The zero value of Access is AccessGuarded, so a route that
@@ -453,7 +469,7 @@ func Dispatch(r router.Router, ctx router.Context) {
 func (r *wasmRouter) gateAndServe(ctx router.Context) {
 	method, pathname := ctx.Method(), ctx.Path()
 
-	route, status := r.match(method, pathname)
+	route, values, status := r.match(method, pathname)
 	if route == nil {
 		reason := "no route matches"
 		if status == 405 {
@@ -463,6 +479,13 @@ func (r *wasmRouter) gateAndServe(ctx router.Context) {
 		ctx.WriteStatus(status)
 		ctx.Write([]byte(fmt.Convert(status).String()))
 		return
+	}
+
+	if ps, ok := ctx.(paramSetter); ok {
+		ps.SetParams(router.ParamNames(route.info.Path), values)
+	} else if wc, ok := ctx.(*wasmContext); ok {
+		wc.paramNames = router.ParamNames(route.info.Path)
+		wc.paramValues = values
 	}
 
 	if ok, why := r.allows(route.info, ctx.UserID()); !ok {
