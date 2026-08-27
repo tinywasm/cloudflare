@@ -14,7 +14,7 @@ require (
 
 require (
 	github.com/tinywasm/json v0.5.23
-	github.com/tinywasm/model v0.1.4
+	github.com/tinywasm/model v0.1.7
 	github.com/tinywasm/router v0.1.28
 )
 
