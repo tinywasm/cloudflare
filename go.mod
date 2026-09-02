@@ -24,4 +24,4 @@ require (
 	github.com/tinywasm/unixid v0.2.26
 )
 
-require github.com/tinywasm/time v0.5.0 // indirect
+require github.com/tinywasm/time v0.5.4 // indirect
