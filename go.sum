@@ -20,8 +20,8 @@ github.com/tinywasm/router v0.1.29 h1:3Ie8hHJtLL70Tmk+G3pNUFy6g+4vASowQDNv9muvA5
 github.com/tinywasm/router v0.1.29/go.mod h1:kvKqXx3SyVyQ9ZjmDNOISkvz4sXrnhttB7EkaZBAuAo=
 github.com/tinywasm/sqlt v0.0.8 h1:yu+9e/4djfTqkC53x5iyzJBBGcoFKvafYDtWv3J08s0=
 github.com/tinywasm/sqlt v0.0.8/go.mod h1:03pCtZV/rlsb0BiF3OfbX/pNGM7DRiWincYyD+c6uDA=
-github.com/tinywasm/storage v0.0.2 h1:2z2w6Vpy5057mtvXWzK79F4XslJBvQl6GqAm+WacfyU=
-github.com/tinywasm/storage v0.0.2/go.mod h1:mF48cBANp2vWkgj2EbpurNY5QY4fYqpCTwbNaaLM5Ic=
+github.com/tinywasm/storage v0.0.6 h1:oVq7M2DtgOAbVaforOfqldMJanuXXCWSzGPFuLREWmo=
+github.com/tinywasm/storage v0.0.6/go.mod h1:C0aOrbutiiLKSL1WLc5hvAiEB4+v0BLh0Jv+W07YxzQ=
 github.com/tinywasm/time v0.5.4 h1:nviU/+9lPVqHCG3Mm3HBsOf6gzqVMuLRNwSRRJ4q53c=
 github.com/tinywasm/time v0.5.4/go.mod h1:RABMkj8o9XWRqudww/2RWt/QQe25IzSS6kEG6z9S/Ro=
 github.com/tinywasm/unixid v0.2.26 h1:eU5VLSegyf9Np6dtbQssI5MVkU914cZyfTI4KnmAyOw=

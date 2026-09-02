@@ -9,7 +9,7 @@ require (
 	github.com/tinywasm/jsvalue v0.0.15
 	github.com/tinywasm/orm v0.11.7
 	github.com/tinywasm/sqlt v0.0.8
-	github.com/tinywasm/storage v0.0.2
+	github.com/tinywasm/storage v0.0.6
 )
 
 require (
