@@ -7,7 +7,7 @@ require (
 	github.com/tinywasm/ddl v0.0.12
 	github.com/tinywasm/fmt v0.25.7
 	github.com/tinywasm/jsvalue v0.0.15
-	github.com/tinywasm/orm v0.11.7
+	github.com/tinywasm/orm v0.12.0
 	github.com/tinywasm/sqlt v0.0.8
 	github.com/tinywasm/storage v0.0.6
 )
